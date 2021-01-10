@@ -208,15 +208,7 @@ class JumpToAnchor(Action):
 def call(args):
     """If available use vims shell mechanism to work around display issues
     """
-    try:
-        import vim
-
-    except ImportError:
-        subprocess.call(args)
-
-    else:
-        args = ['shellescape(' + json.dumps(arg) + ')' for arg in args]
-        vim.command('execute "! " . ' + ' . " " . '.join(args))
+    subprocess.Popen(args, start_new_session=True)
 
 
 def parse_path(path):
