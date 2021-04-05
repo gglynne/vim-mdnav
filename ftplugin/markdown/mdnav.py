@@ -150,7 +150,8 @@ class VimOpen(Action):
         # TODO: make space handling more robust?
         #  vim.command('e {}'.format(path.path.replace(' ', '\\ ')))
         escapedTargetPath = re.sub(r'%20| ', '\\ ', path.path)
-        vim.command('e {}'.format(escapedTargetPath))
+        target = sys.argv[0]
+        vim.command('{} {}'.format(target, escapedTargetPath))
         if path.line is not None:
             try:
                 line = int(path.line)
