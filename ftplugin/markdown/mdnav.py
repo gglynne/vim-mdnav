@@ -148,12 +148,13 @@ class VimOpen(Action):
         path = parse_path(self.target)
 
         # TODO: make space handling more robust?
-        vim.command('e {}'.format(path.path.replace(' ', '\\ ')))
+        #  vim.command('e {}'.format(path.path.replace(' ', '\\ ')))
+        escapedTargetPath = re.sub(r'%20| ', '\\ ', path.path)
+        vim.command('e {}'.format(escapedTargetPath))
         if path.line is not None:
             try:
                 line = int(path.line)
-
-            except:
+            except Exception:
                 print('invalid line number')
                 return
 
