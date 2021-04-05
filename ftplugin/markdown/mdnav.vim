@@ -9,4 +9,4 @@ function! _MDNavExec(target)
     execute 'py3file ' . g:mdnav#PythonScript
 endfunction
 command! -nargs=1 MDNavExec call _MDNavExec((<args>))
-nnoremap <buffer> <CR> :MDNavExec "e"<CR>
+"nnoremap <buffer> <CR> :MDNavExec "e"<CR>
