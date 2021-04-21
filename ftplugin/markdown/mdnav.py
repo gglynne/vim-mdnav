@@ -63,8 +63,18 @@ def open_link(target, current_file, open_in_vim_extensions=set()):
         target = target.strip()
 
     if not target:
-        _logger.info('no target')
-        return NoOp(target)
+        # jump to first valid raw url on the line
+        line = vim.eval("getline('.')")
+        results = [urlparse(fragment) for fragment in line.split(' ')]
+        links = [r.geturl() for r in results if r.netloc]
+        if links:
+            link = links[0]
+            link=link.replace('"','')
+            link=link.replace("'",'')
+            return BrowserOpen(link)
+        else:
+            _logger.info('no target')
+            return NoOp(target)
 
     if target.startswith('#'):
         return JumpToAnchor(target)
@@ -123,6 +133,7 @@ class NoOp(Action):
         print('<mdnav: no link>')
 
 
+
 class BrowserOpen(Action):
     def __call__(self):
         print('<mdnav: open browser tab>')
@@ -152,6 +163,12 @@ class VimOpen(Action):
         escapedTargetPath = re.sub(r'%20| ', '\\ ', path.path)
         target = sys.argv[0]
         vim.command('{} {}'.format(target, escapedTargetPath))
+        if path.regex is not None:
+            #  print("TODO: search for regex %s in current buffer" % path.regex)
+            #  python vim.command("normal /bufname/e+1\<CR>")
+            #  python vim.command("normal /hello/<cr>")
+            pass
+
         if path.line is not None:
             try:
                 line = int(path.line)
@@ -227,6 +244,11 @@ def parse_path(path):
         ext, anchor = ext.rsplit('#', 1)
         return ParsedPath(path + ext, anchor=anchor)
 
+    if '::' in ext:
+        ext, regex = ext.rsplit('::', 1)
+        return ParsedPath(path + ext, regex=regex)
+
+
     if ':' in ext:
         ext, line = ext.rsplit(':', 1)
         return ParsedPath(path + ext, line=line)
@@ -235,13 +257,14 @@ def parse_path(path):
 
 
 class ParsedPath(object):
-    def __init__(self, path, line=None, anchor=None):
+    def __init__(self, path, line=None, anchor=None, regex=None):
         self.path = path
         self.line = line
         self.anchor = anchor
+        self.regex = regex
 
     def __repr__(self):
-        return 'ParsedPath({!r}, line={}, anchor={!r})'.format(self.path, self.line, self.anchor)
+        return 'ParsedPath({!r}, line={}, anchor={!r}, regex={})'.format(self.path, self.line, self.anchor)
 
 
 def parse_link(cursor, lines):
