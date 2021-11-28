@@ -133,11 +133,15 @@ class NoOp(Action):
         print('<mdnav: no link>')
 
 
-
 class BrowserOpen(Action):
     def __call__(self):
         print('<mdnav: open browser tab>')
-        webbrowser.open_new_tab(self.target)
+        #  webbrowser.open_new_tab(self.target)
+        #  import vim
+        #  browser_path = vim.eval('g:mdnavbrowserpath')
+        #  webbrowser.get(browser_path).open_new_tab(self.target)
+        import os
+        os.system('python -m webbrowser -t "%s"' % self.target)
 
 
 class OSOpen(Action):
